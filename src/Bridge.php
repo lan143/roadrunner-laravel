@@ -17,7 +17,7 @@ class Bridge
     /**
      * Stores the kernel
      *
-     * @var \Laravel\Lumen\Application
+     * @var \Illuminate\Contracts\Http\Kernel|\Laravel\Lumen\Application
      */
     private $_kernel;
 
@@ -27,6 +27,11 @@ class Bridge
      * @var int
      */
     private $appRegisterParameters;
+
+    /**
+     * @var string[]
+     */
+    private $resetProviders = [];
 
 
     private function prepareKernel()
@@ -94,6 +99,19 @@ class Bridge
             $psr7response = $psr7factory->createResponse($response);
             $psr7->respond($psr7response);
 
+            if (method_exists($this->_kernel, 'terminate')) {
+                $this->_kernel->terminate($request, $response);
+            } else {
+                $method = new \ReflectionMethod(get_class($this->_kernel), 'callTerminableMiddleware');
+                $method->setAccessible(true);
+                $method->invoke($this->_kernel, $response);
+                $method->setAccessible(false);
+            }
+
+            foreach ($this->resetProviders as $provider) {
+                $this->resetProvider($provider);
+            }
+
             if (method_exists($this->_app, 'getProvider')) {
                 //reset debugbar if available
                 $this->resetProvider('\Illuminate\Redis\RedisServiceProvider');
@@ -129,5 +147,16 @@ class Bridge
         } else {
             $this->_app->register($providerName, $force);
         }
+    }
+
+    /**
+     * @param string $serviceProviderClass
+     * @return Bridge
+     */
+    public function addProviderToReset($serviceProviderClass)
+    {
+        $this->resetProviders[] = $serviceProviderClass;
+
+        return $this;
     }
 }
