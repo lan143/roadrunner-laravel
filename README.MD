@@ -1,6 +1,6 @@
-# RoadRunner <-> Laravel/Lumen Bridge
+# RoadRunner <-> Lumen Bridge
 
-In order to Laravel and Lumen work properly with RoadRunner you have to use this library. Without it Laravel not reseting
+In order to Lumen work properly with RoadRunner you have to use this library. Without it Laravel not reseting
 some components and can end up with bugs.
 
 ## Installation

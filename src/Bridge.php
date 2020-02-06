@@ -17,7 +17,7 @@ class Bridge
     /**
      * Stores the kernel
      *
-     * @var \Illuminate\Contracts\Http\Kernel|\Laravel\Lumen\Application
+     * @var \Laravel\Lumen\Application
      */
     private $_kernel;
 
@@ -93,8 +93,6 @@ class Bridge
             $psr7factory = new DiactorosFactory();
             $psr7response = $psr7factory->createResponse($response);
             $psr7->respond($psr7response);
-
-            $this->_kernel->terminate($request, $response);
 
             if (method_exists($this->_app, 'getProvider')) {
                 //reset debugbar if available
